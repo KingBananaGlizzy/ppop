@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | Hunters and Props</title>
+    <script src="Build/UnityLoader.js"></script>
+		<script type="text/javascript" src="https://www.kongregate.com/javascripts/kongregate_api.js"></script>
+    <script>
+      var gameInstance = UnityLoader.instantiate("gameContainer", "Build/074kg.json");
+			var kongregate;
+		// Called when the API is finished loading
+		function onLoadCompleted(){
+		  // Get a global reference to the kongregate API
+		  kongregate = kongregateAPI.getAPI();
+		  var services = kongregate.services;
+
+		  var params=[services.getUserId(), services.getUsername(), services.getGameAuthToken()].join('|');
+       	  gameInstance.SendMessage('KongregateAPI', 'OnKongregateAPILoaded', params);
+		}
+      
+		// Begin the process of loading the Kongregate API:
+		
+      
+		function LoadGame()
+		{
+		    kongregateAPI.loadAPI(onLoadCompleted);
+		}
+
+	    function Login() {
+	     	// Get the reference to the Kongregate API from the parent
+	     	var services = kongregate.services;
+		     if (services.isGuest()) {
+		      	services.addEventListener('login', function(){
+				       var services = kongregate.services;
+				       var params=[services.getUserId(), services.getUsername(), services.getGameAuthToken()].join('|');
+				       gameInstance.SendMessage('NetworkController', 'LoginKongregate', params);
+					});
+		    	gameInstance.SendMessage('NetworkController', 'LoginKongregate', '');
+		    } else {
+		    	var params=[services.getUserId(), services.getUsername(), services.getGameAuthToken()].join('|');
+		    	gameInstance.SendMessage('NetworkController', 'LoginKongregate', params);
+		    }
+		}
+
+		window.onbeforeunload = function (e) {
+			e = e || window.event;
+
+			// For IE and Firefox prior to version 4
+			if (e) {
+				e.returnValue = 'Sure?';
+			}
+
+			// For Safari
+			return 'Sure?';
+		};
+
+    </script>
+  </head>
+  <body>
+    <div id="gameContainer" style="width: 960px; height: 600px; margin: auto"></div>
+  </body>
+</html>
